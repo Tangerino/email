@@ -58,15 +58,17 @@ static int sendEmail() {
     quickmail_add_header(mailobj, "X-MSMail-Priority: Low");
     quickmail_add_body_memory(mailobj, "text/html", body, strlen(body), 1);
 
+    const char* errmsg = NULL;
     char *fn = malloc(strlen(gatewayName) * 2 + 256);
-    sprintf(fn, "%s.%ld.csv", gatewayName, t);
-    quickmail_add_attachment_memory(mailobj, fn, NULL, memAttachment, strlen(memAttachment), 0);
-    free(fn);
-    quickmail_set_debug_log(mailobj, stderr);
-    const char* errmsg;
-    if ((errmsg = quickmail_send(mailobj, "localhost", 0, "", "")) != NULL) {
-        printf("Error sending e-mail: %s", errmsg);
-    }
+    if (fn) {
+        sprintf(fn, "%s.%ld.csv", gatewayName, t);
+        quickmail_add_attachment_memory(mailobj, fn, NULL, memAttachment, strlen(memAttachment), 0);
+        free(fn);
+        quickmail_set_debug_log(mailobj, stderr);
+        if ((errmsg = quickmail_send(mailobj, "localhost", 0, "", "")) != NULL) {
+            printf("Error sending e-mail: %s", errmsg);
+        }
+    } 
     quickmail_destroy(mailobj);
     if (!errmsg) {
         return 200;
